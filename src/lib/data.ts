@@ -1,0 +1,140 @@
+import type { Product } from './types';
+import { PlaceHolderImages } from './placeholder-images';
+
+const getImage = (id: string) => {
+    const img = PlaceHolderImages.find(p => p.id === id);
+    if (!img) throw new Error(`Image with id ${id} not found`);
+    const urlParts = img.imageUrl.split('/');
+    const width = parseInt(urlParts[urlParts.length - 2]);
+    const height = parseInt(urlParts[urlParts.length - 1]);
+    return {
+        src: img.imageUrl,
+        alt: img.description,
+        width,
+        height,
+        hint: img.imageHint
+    };
+}
+
+export const products: Product[] = [
+    {
+        id: 'classic-white-tee',
+        name: 'Classic White Tee',
+        description: 'A timeless wardrobe staple. Made from 100% premium cotton for ultimate comfort.',
+        price: 29.99,
+        image: getImage('white-tee'),
+        category: 'T-Shirts',
+        stock: 150,
+        slug: 'classic-white-tee',
+    },
+    {
+        id: 'slim-fit-denim-jeans',
+        name: 'Slim Fit Denim Jeans',
+        description: 'Modern slim fit jeans with a hint of stretch for all-day comfort.',
+        price: 89.99,
+        image: getImage('denim-jeans'),
+        category: 'Jeans',
+        stock: 80,
+        slug: 'slim-fit-denim-jeans',
+    },
+    {
+        id: 'floral-summer-dress',
+        name: 'Floral Summer Dress',
+        description: 'Light and airy, this floral dress is perfect for warm summer days.',
+        price: 79.99,
+        image: getImage('summer-dress'),
+        category: 'Dresses',
+        stock: 60,
+        slug: 'floral-summer-dress',
+    },
+    {
+        id: 'leather-biker-jacket',
+        name: 'Leather Biker Jacket',
+        description: 'A classic biker jacket made from genuine leather. Adds an edge to any outfit.',
+        price: 249.99,
+        image: getImage('leather-jacket'),
+        category: 'Jackets',
+        stock: 30,
+        slug: 'leather-biker-jacket',
+    },
+    {
+        id: 'cozy-knit-hoodie',
+        name: 'Cozy Knit Hoodie',
+        description: 'Stay warm and stylish with this ultra-soft knit hoodie.',
+        price: 69.99,
+        image: getImage('knit-hoodie'),
+        category: 'Hoodies',
+        stock: 120,
+        slug: 'cozy-knit-hoodie',
+    },
+    {
+        id: 'high-top-sneakers',
+        name: 'High-Top Sneakers',
+        description: 'Classic canvas high-top sneakers for a timeless casual look.',
+        price: 59.99,
+        image: getImage('high-top-sneakers'),
+        category: 'Footwear',
+        stock: 200,
+        slug: 'high-top-sneakers',
+    },
+    {
+        id: 'graphic-print-t-shirt',
+        name: 'Graphic Print T-Shirt',
+        description: 'Express yourself with this unique graphic print t-shirt. Soft and breathable cotton.',
+        price: 34.99,
+        image: getImage('graphic-tee'),
+        category: 'T-Shirts',
+        stock: 100,
+        slug: 'graphic-print-t-shirt',
+    },
+    {
+        id: 'distressed-denim-jacket',
+        name: 'Distressed Denim Jacket',
+        description: 'A perfectly worn-in denim jacket for a cool, vintage-inspired look.',
+        price: 99.99,
+        image: getImage('denim-jacket'),
+        category: 'Jackets',
+        stock: 50,
+        slug: 'distressed-denim-jacket',
+    },
+    {
+        id: 'suede-chelsea-boots',
+        name: 'Suede Chelsea Boots',
+        description: 'Elevate your style with these versatile and comfortable suede Chelsea boots.',
+        price: 129.99,
+        image: getImage('suede-boots'),
+        category: 'Footwear',
+        stock: 75,
+        slug: 'suede-chelsea-boots',
+    },
+     {
+        id: 'black-skinny-jeans',
+        name: 'Black Skinny Jeans',
+        description: 'Versatile black skinny jeans that can be dressed up or down.',
+        price: 79.99,
+        image: getImage('black-jeans'),
+        category: 'Jeans',
+        stock: 90,
+        slug: 'black-skinny-jeans',
+    },
+    {
+        id: 'pullover-sweatshirt',
+        name: 'Pullover Sweatshirt',
+        description: 'A comfortable and stylish pullover sweatshirt for everyday wear.',
+        price: 54.99,
+        image: getImage('sweatshirt'),
+        category: 'Hoodies',
+        stock: 110,
+        slug: 'pullover-sweatshirt',
+    },
+    {
+        id: 'midi-slip-dress',
+        name: 'Midi Slip Dress',
+        description: 'A silky and elegant midi slip dress, perfect for evenings out.',
+        price: 89.99,
+        image: getImage('slip-dress'),
+        category: 'Dresses',
+        stock: 45,
+        slug: 'midi-slip-dress',
+    }
+];

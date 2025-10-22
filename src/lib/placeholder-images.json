@@ -1,3 +1,76 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "white-tee",
+      "description": "A person wearing a plain white t-shirt.",
+      "imageUrl": "https://images.unsplash.com/photo-1598554793905-075f7b355cd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d2hpdGUlMjB0LXNoaXJ0fGVufDB8fHx8MTc2MTA1MjA4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white t-shirt"
+    },
+    {
+      "id": "denim-jeans",
+      "description": "A pair of classic blue denim jeans.",
+      "imageUrl": "https://images.unsplash.com/photo-1714143164072-7646ef5cb24d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Ymx1ZSUyMGplYW5zfGVufDB8fHx8MTc2MTAzNTUzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "blue jeans"
+    },
+    {
+      "id": "summer-dress",
+      "description": "A person wearing a light, floral summer dress.",
+      "imageUrl": "https://images.unsplash.com/photo-1591774921149-70c37a3fe407?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmbG9yYWwlMjBkcmVzc3xlbnwwfHx8fDE3NjExMTA5MzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "floral dress"
+    },
+    {
+      "id": "leather-jacket",
+      "description": "A stylish black leather biker jacket.",
+      "imageUrl": "https://images.unsplash.com/photo-1727524366429-27de8607d5f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsZWF0aGVyJTIwamFja2V0fGVufDB8fHx8MTc2MTA2Mzk5OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leather jacket"
+    },
+    {
+      "id": "knit-hoodie",
+      "description": "A cozy grey knit hoodie.",
+      "imageUrl": "https://images.unsplash.com/photo-1619183036291-4dbe7854a859?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxncmV5JTIwaG9vZGllfGVufDB8fHx8MTc2MTEyNjgyOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grey hoodie"
+    },
+    {
+      "id": "high-top-sneakers",
+      "description": "A pair of white high-top sneakers.",
+      "imageUrl": "https://images.unsplash.com/photo-1615109255391-b0dfdcd5b8d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3aGl0ZSUyMHNuZWFrZXJzfGVufDB8fHx8MTc2MTA5MDU3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white sneakers"
+    },
+    {
+      "id": "graphic-tee",
+      "description": "A person wearing a t-shirt with a cool graphic print.",
+      "imageUrl": "https://images.unsplash.com/photo-1484712401471-05c7215830eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxncmFwaGljJTIwdC1zaGlydHxlbnwwfHx8fDE3NjEwODYxNDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "graphic t-shirt"
+    },
+    {
+      "id": "denim-jacket",
+      "description": "A classic blue denim jacket.",
+      "imageUrl": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZW5pbSUyMGphY2tldHxlbnwwfHx8fDE3NjEwNTM5NjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "denim jacket"
+    },
+    {
+      "id": "suede-boots",
+      "description": "A pair of brown suede chelsea boots.",
+      "imageUrl": "https://images.unsplash.com/photo-1759793501020-75fbf108d705?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdWVkZSUyMGJvb3RzfGVufDB8fHx8MTc2MTExNTg3MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "suede boots"
+    },
+    {
+      "id": "black-jeans",
+      "description": "A pair of black skinny jeans.",
+      "imageUrl": "https://images.unsplash.com/photo-1638404390952-3a9442fbad15?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxibGFjayUyMGplYW5zfGVufDB8fHx8MTc2MTEyNDA4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black jeans"
+    },
+    {
+      "id": "sweatshirt",
+      "description": "A person wearing a comfortable navy sweatshirt.",
+      "imageUrl": "https://images.unsplash.com/photo-1655819157502-abebf3c03a96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxuYXZ5JTIwc3dlYXRzaGlydHxlbnwwfHx8fDE3NjExMjY4Mjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "navy sweatshirt"
+    },
+    {
+      "id": "slip-dress",
+      "description": "A satin slip dress in a muted color.",
+      "imageUrl": "https://images.unsplash.com/photo-1723813196516-fc9dff5f8c0d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzYXRpbiUyMGRyZXNzfGVufDB8fHx8MTc2MTEyNjgyOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "satin dress"
+    }
+  ]
 }
