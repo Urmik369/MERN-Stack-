@@ -45,7 +45,7 @@ export default function OrdersPage() {
       case 'Shipped': return 'default';
       case 'Pending': return 'secondary';
       case 'Delivered': return 'outline';
-      default: return 'destructive';
+      default: 'destructive';
     }
   };
 
@@ -60,7 +60,7 @@ export default function OrdersPage() {
           <CardContent>
             {isLoading ? (
               <OrdersTableSkeleton />
-            ) : (
+            ) : orders && orders.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -92,10 +92,10 @@ export default function OrdersPage() {
                 ))}
               </TableBody>
             </Table>
-            )}
-             { !isLoading && orders?.length === 0 && (
+            ) : (
                 <div className="text-center text-muted-foreground py-16">
-                    <p>No orders have been placed yet.</p>
+                    <p>No orders have been placed yet, or the required Firestore index is still being built.</p>
+                    <p className="text-sm">It can take a few minutes for a new index to become active.</p>
                 </div>
             )}
           </CardContent>
