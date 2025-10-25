@@ -1,3 +1,5 @@
+'use client';
+
 import ShopLayout from "@/components/layout/shop-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -5,8 +7,53 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { User, ShoppingBag, Heart, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { getAuth, signOut } from "firebase/auth";
+import { useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { useFirebaseApp } from "@/firebase";
 
 export default function AccountPage() {
+  const app = useFirebaseApp();
+  const auth = getAuth(app);
+  const { user, loading } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: error.message,
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <ShopLayout>
+        <div className="text-center">Loading account details...</div>
+      </ShopLayout>
+    );
+  }
+
+  if (!user) {
+    // This should be handled by middleware in a real app
+    // For now, redirect client-side
+    if (typeof window !== 'undefined') {
+      router.push('/login');
+    }
+    return null;
+  }
+
   return (
     <ShopLayout>
       <div className="space-y-6">
@@ -22,12 +69,12 @@ export default function AccountPage() {
             <Card>
               <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src="https://picsum.photos/seed/user/100/100" alt="User Name" />
-                  <AvatarFallback>UN</AvatarFallback>
+                  <AvatarImage src={user.photoURL || "https://picsum.photos/seed/user/100/100"} alt={user.displayName || "User"} />
+                  <AvatarFallback>{user.displayName?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle className="text-xl">Alex Doe</CardTitle>
-                  <CardDescription>alex.doe@example.com</CardDescription>
+                  <CardTitle className="text-xl">{user.displayName || "User"}</CardTitle>
+                  <CardDescription>{user.email}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -41,7 +88,7 @@ export default function AccountPage() {
                   <Heart /> Wishlist
                 </Button>
                 <Separator />
-                <Button variant="ghost" className="w-full justify-start gap-2 text-destructive hover:text-destructive">
+                <Button onClick={handleLogout} variant="ghost" className="w-full justify-start gap-2 text-destructive hover:text-destructive">
                   <LogOut /> Log Out
                 </Button>
               </CardContent>

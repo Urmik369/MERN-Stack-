@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +19,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Logo from '../shared/logo';
+import { useToast } from '@/hooks/use-toast';
+import { useFirebaseApp } from '@/firebase';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -31,6 +35,11 @@ const formSchema = z.object({
 });
 
 export default function SignupForm() {
+  const app = useFirebaseApp();
+  const auth = getAuth(app);
+  const router = useRouter();
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,9 +49,24 @@ export default function SignupForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Here you would handle the signup logic
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { displayName: values.name });
+      }
+      toast({
+        title: "Account Created",
+        description: "You have successfully signed up.",
+      });
+      router.push('/account');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Sign-up Failed",
+        description: error.message,
+      });
+    }
   }
 
   return (

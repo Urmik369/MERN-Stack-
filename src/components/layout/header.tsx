@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingBag, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, Search, Menu } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,18 +9,30 @@ import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '#', label: 'New Arrivals' },
-  { href: '#', label: 'Men' },
-  { href: '#', label: 'Women' },
+  { href: '/?category=all', label: 'All' },
+  { href: '/', label: 'New Arrivals' },
+  { href: '/?category=Men', label: 'Men' },
+  { href: '/?category=Women', label: 'Women' },
 ];
 
 export default function Header() {
   const { cartItems } = useCart();
+  const { user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const searchQuery = formData.get('search') as string;
+    router.push(`/?q=${searchQuery}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -70,11 +82,11 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="relative hidden sm:block">
+          <form onSubmit={handleSearch} className="relative hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search..." className="pl-10 w-40 lg:w-64" />
-          </div>
-          <Link href="/account" passHref>
+            <Input placeholder="Search..." className="pl-10 w-40 lg:w-64" name="search" />
+          </form>
+          <Link href={user ? '/account' : '/login'} passHref>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />
               <span className="sr-only">Account</span>

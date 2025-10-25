@@ -13,12 +13,27 @@ export default function Home({
   const page = searchParams['page'] ?? '1';
   const perPage = searchParams['per_page'] ?? '9';
   const searchTerm = (searchParams['q'] as string)?.toLowerCase() ?? '';
-  const category = (searchParams['category'] as string) ?? 'all';
+  let category = (searchParams['category'] as string) ?? 'all';
 
-  const filteredProducts = products.filter((product) => {
+  // Handle Men/Women categories
+  const getCategoryProducts = (cat: string) => {
+    if (cat === 'Men') {
+      return products.filter(p => ['T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear'].includes(p.category));
+    }
+    if (cat === 'Women') {
+      return products.filter(p => ['Dresses', 'T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear'].includes(p.category));
+    }
+    if (cat === 'all' || !cat) {
+      return products;
+    }
+    return products.filter(p => p.category === cat);
+  }
+
+  const categoryProducts = getCategoryProducts(category);
+
+  const filteredProducts = categoryProducts.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.description.toLowerCase().includes(searchTerm);
-    const matchesCategory = category === 'all' || product.category === category;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const start = (Number(page) - 1) * Number(perPage);
@@ -27,7 +42,7 @@ export default function Home({
 
   const totalPages = Math.ceil(filteredProducts.length / Number(perPage));
 
-  const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
+  const categories = ['all', 'Men', 'Women', ...Array.from(new Set(products.map(p => p.category)))];
 
   return (
     <ShopLayout>
