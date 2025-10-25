@@ -45,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </h3>
         <p className="text-sm text-muted-foreground">{product.category}</p>
         <div className="flex items-center justify-between mt-1">
-          <p className="font-bold text-lg">${product.price.toFixed(2)}</p>
+          <p className="font-bold text-lg">₹{product.price.toFixed(2)}</p>
           <Button size="icon" onClick={handleAddToCart} variant="secondary" className='rounded-full h-8 w-8 bg-background/80 hover:bg-background backdrop-blur-sm'>
               <Plus className="h-4 w-4"/>
           </Button>

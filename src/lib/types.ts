@@ -10,7 +10,7 @@ export type Product = {
     height: number;
     hint: string;
   };
-  category: 'T-Shirts' | 'Jeans' | 'Dresses' | 'Jackets' | 'Hoodies' | 'Footwear';
+  category: 'T-Shirts' | 'Jeans' | 'Dresses' | 'Jackets' | 'Hoodies' | 'Footwear' | 'Shirts' | 'Shorts' | 'Trousers' | 'Tops';
   stock: number;
   slug: string;
 };

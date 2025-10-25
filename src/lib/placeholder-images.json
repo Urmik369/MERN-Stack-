@@ -71,6 +71,30 @@
       "description": "A satin slip dress in a muted color.",
       "imageUrl": "https://images.unsplash.com/photo-1723813196516-fc9dff5f8c0d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzYXRpbiUyMGRyZXNzfGVufDB8fHx8MTc2MTEyNjgyOHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "satin dress"
+    },
+    {
+      "id": "linen-shirt",
+      "description": "A man wearing a casual white linen shirt.",
+      "imageUrl": "https://images.unsplash.com/photo-1620951233984-783a37888b43?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "linen shirt"
+    },
+    {
+      "id": "chino-shorts",
+      "description": "A pair of beige chino shorts.",
+      "imageUrl": "https://images.unsplash.com/photo-1624378440833-5953e535266b?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "chino shorts"
+    },
+    {
+      "id": "womens-trousers",
+      "description": "A woman wearing stylish high-waist trousers.",
+      "imageUrl": "https://images.unsplash.com/photo-1594625298844-469b62f689c3?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "women trousers"
+    },
+    {
+      "id": "silk-camisole",
+      "description": "A silk camisole top on a hanger.",
+      "imageUrl": "https://images.unsplash.com/photo-1600293963429-224633e73898?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "silk top"
     }
   ]
 }
