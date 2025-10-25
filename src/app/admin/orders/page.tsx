@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collectionGroup, query, orderBy, where } from 'firebase/firestore';
+import { collectionGroup, query, orderBy } from 'firebase/firestore';
 import type { Order } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function OrdersTableSkeleton() {
   return (
@@ -34,10 +35,11 @@ function OrdersTableSkeleton() {
 
 export default function OrdersPage() {
   const firestore = useFirestore();
+  const [firestoreErrorUrl, setFirestoreErrorUrl] = useState<string | null>(null);
+
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // Use collectionGroup to query across all 'orders' subcollections
-    // This more specific query can help Firestore generate the correct index.
+    // A simplified query to help Firestore generate the correct index creation link.
     return query(
         collectionGroup(firestore, 'orders'), 
         orderBy('orderDate', 'desc')
@@ -45,6 +47,17 @@ export default function OrdersPage() {
   }, [firestore]);
 
   const { data: orders, isLoading, error } = useCollection<Order>(ordersQuery);
+
+  useEffect(() => {
+    if (error) {
+      const firebaseError = error as any;
+      const urlMatch = firebaseError?.message?.match(/https?:\/\/[^\s]+/);
+      if (urlMatch) {
+        setFirestoreErrorUrl(urlMatch[0]);
+      }
+    }
+  }, [error]);
+
 
   const getStatusVariant = (status: Order['status']) => {
     switch (status) {
@@ -54,9 +67,6 @@ export default function OrdersPage() {
       default: return 'destructive';
     }
   };
-  
-  const firebaseError = error as any;
-  const firestoreErrorUrl = firebaseError?.message?.match(/https?:\/\/[^\s]+/);
 
   return (
     <AdminLayout>
@@ -74,14 +84,14 @@ export default function OrdersPage() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Firestore Index Required</AlertTitle>
                     <AlertDescription>
-                        A required Firestore index is missing. To create it, please click the following link, review the index details, and click "Create". The admin panel will work correctly once the index is built (which may take a few minutes).
+                        A required Firestore index is missing, which is causing a permission error. To fix this, please click the link below to create the index in Firebase. The admin panel will work correctly once the index is built (which may take a few minutes).
                         <br />
                         {firestoreErrorUrl ? (
-                            <a href={firestoreErrorUrl[0]} target="_blank" rel="noopener noreferrer" className="font-bold underline mt-2 inline-block">
+                            <a href={firestoreErrorUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline mt-2 inline-block">
                                 Create Firestore Index
                             </a>
                         ) : (
-                            <p className="mt-2">Could not automatically generate the index creation link. Please check the browser's developer console for the full error message from Firebase, which contains the link.</p>
+                           <p className="mt-2">Could not automatically generate the index creation link. Please check the browser's developer console for the full error message from Firebase, which contains the link, and create the index manually.</p>
                         )}
                     </AlertDescription>
                 </Alert>
@@ -91,7 +101,6 @@ export default function OrdersPage() {
                 <TableRow>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Customer</TableHead>
-
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
