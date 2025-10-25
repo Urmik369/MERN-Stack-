@@ -1,151 +1,115 @@
 /**
- * @fileOverview Firestore Security Rules for StyleSpace.
+ * @fileoverview Firestore Security Rules for StyleSpace.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for personal data (profiles, orders, style recommendations, shopping carts)
- * and allows public read access to product information.
+ * This ruleset enforces a strict user-ownership model for user-specific data
+ * while allowing public read access to product information.  Path-based
+ * authorization is used extensively to avoid costly `get()` calls within rules.
  *
  * Data Structure:
- * - `/users/{userId}`: User profiles, accessible only to the authenticated user.
- * - `/products/{productId}`: Product information, publicly readable.
- * - `/users/{userId}/shoppingCart`: Shopping cart for each user.
- * - `/users/{userId}/orders/{orderId}`: Orders placed by each user.
- * - `/users/{userId}/styleRecommendations/{recommendationId}`: Style recommendations for each user.
+ * - /users/{userId}: User profiles, accessible only by the owning user.
+ * - /products/{productId}: Public product catalog, readable by all, writable by no one in this prototype.
+ * - /users/{userId}/shoppingCart: Shopping cart data, accessible only by the owning user. Uses a single document in the subcollection.
+ * - /users/{userId}/orders/{orderId}: Order history, accessible only by the owning user.
+ * - /users/{userId}/styleRecommendations/{recommendationId}: Style recommendations, accessible only by the owning user.
  *
  * Key Security Decisions:
- * - Public listing of the entire database root is denied.
- * - User listing is implicitly disallowed due to the lack of a root-level list rule.
- * - Write access to product information is denied (consider adding admin roles for managing products in a real application).
- * - Data validation is relaxed in this prototyping phase, focusing on authorization and relational integrity only.
- *
- * Denormalization for Authorization:
- * - User ownership is enforced through path-based rules (e.g., `/users/{userId}/...`), making `get()` calls unnecessary.
+ * - User listing is disallowed.
+ * - Products are publicly readable but not writable in this prototype.  In a
+ *   production environment, writes would be restricted to administrative roles.
+ * - All user-owned data is nested under /users/{userId} to leverage path-based
+ *   authorization.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Prevents listing the entire database.
-     * @path /databases/{database}/documents
-     * @allow None - Listing the root is not permitted.
-     * @deny list: Always.
-     * @principle Avoids exposing the entire database structure.
-     */
-    match /{document=**} {
-      allow list: if false;
-    }
-
-    /**
-     * @description Manages user profiles. Only the authenticated user can access their own profile.
+     * @description Enforces read and write access to user profiles only to the owning user.
      * @path /users/{userId}
-     * @allow (create) User with ID 'user123' can create their profile if authenticated as 'user123'.
-     * @allow (get) User 'user123' can read their profile if authenticated as 'user123'.
-     * @allow (update) User 'user123' can update their profile if authenticated as 'user123'.
-     * @allow (delete) User 'user123' can delete their profile if authenticated as 'user123'.
-     * @deny (create) User 'user456' cannot create a profile for 'user123'.
-     * @deny (get) User 'user456' cannot read the profile of 'user123'.
-     * @deny (update) User 'user456' cannot update the profile of 'user123'.
-     * @deny (delete) User 'user456' cannot delete the profile of 'user123'.
-     * @principle Enforces document ownership for all operations on user profiles.
+     * @allow (get, create, update, delete, list) if request.auth.uid == userId
+     * @deny (get, create, update, delete, list) if request.auth.uid != userId
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
+      //function
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Manages product information. All users can read product details.
+     * @description Allows public read access to product information.  Write access is denied in this prototype.
      * @path /products/{productId}
-     * @allow (get) Any user can read any product.
-     * @allow (list) Any user can list products.
-     * @deny (create) No one can create products (in this prototype).
-     * @deny (update) No one can update products (in this prototype).
-     * @deny (delete) No one can delete products (in this prototype).
-     * @principle Allows public read access to product information, restricts write access.
+     * @allow (get, list) if true
+     * @deny (create, update, delete) always
+     * @principle Products are publicly readable.
      */
     match /products/{productId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Manages the user's shopping cart. Only the authenticated user can access their own shopping cart.
+     * @description Enforces read and write access to shopping cart data only to the owning user.
      * @path /users/{userId}/shoppingCart
-     * @allow (create) User 'user123' can create their shopping cart if authenticated as 'user123'.
-     * @allow (get) User 'user123' can read their shopping cart if authenticated as 'user123'.
-     * @allow (update) User 'user123' can update their shopping cart if authenticated as 'user123'.
-     * @allow (delete) User 'user123' can delete their shopping cart if authenticated as 'user123'.
-     * @deny (create) User 'user456' cannot create a shopping cart for 'user123'.
-     * @deny (get) User 'user456' cannot read the shopping cart of 'user123'.
-     * @deny (update) User 'user456' cannot update the shopping cart of 'user123'.
-     * @deny (delete) User 'user456' cannot delete the shopping cart of 'user123'.
-     * @principle Enforces document ownership for all operations on the user's shopping cart.
+     * @allow (get, create, update, delete, list) if request.auth.uid == userId
+     * @deny (get, create, update, delete, list) if request.auth.uid != userId
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/shoppingCart {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow list: if false;
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Manages orders placed by the user. Only the authenticated user can access their own orders.
+     * @description Enforces read and write access to order data only to the owning user.
      * @path /users/{userId}/orders/{orderId}
-     * @allow (create) User 'user123' can create an order if authenticated as 'user123'.
-     * @allow (get) User 'user123' can read their order if authenticated as 'user123'.
-     * @allow (update) User 'user123' can update their order if authenticated as 'user123'.
-     * @allow (delete) User 'user123' can delete their order if authenticated as 'user123'.
-     * @deny (create) User 'user456' cannot create an order for 'user123'.
-     * @deny (get) User 'user456' cannot read the order of 'user123'.
-     * @deny (update) User 'user456' cannot update the order of 'user123'.
-     * @deny (delete) User 'user456' cannot delete the order of 'user123'.
-     * @principle Enforces document ownership for all operations on user orders.
+     * @allow (get, create, update, delete, list) if request.auth.uid == userId
+     * @deny (get, create, update, delete, list) if request.auth.uid != userId
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/orders/{orderId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Manages style recommendations for the user. Only the authenticated user can access their own style recommendations.
+     * @description Enforces read and write access to style recommendation data only to the owning user.
      * @path /users/{userId}/styleRecommendations/{recommendationId}
-     * @allow (create) User 'user123' can create a style recommendation if authenticated as 'user123'.
-     * @allow (get) User 'user123' can read their style recommendation if authenticated as 'user123'.
-     * @allow (update) User 'user123' can update their style recommendation if authenticated as 'user123'.
-     * @allow (delete) User 'user123' can delete their style recommendation if authenticated as 'user123'.
-     * @deny (create) User 'user456' cannot create a style recommendation for 'user123'.
-     * @deny (get) User 'user456' cannot read the style recommendation of 'user123'.
-     * @deny (update) User 'user456' cannot update the style recommendation of 'user123'.
-     * @deny (delete) User 'user456' cannot delete the style recommendation of 'user123'.
-     * @principle Enforces document ownership for all operations on style recommendations.
+     * @allow (get, create, update, delete, list) if request.auth.uid == userId
+     * @deny (get, create, update, delete, list) if request.auth.uid != userId
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/styleRecommendations/{recommendationId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
-  }
-
-  // Helper functions
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  function isOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId;
-  }
-
-    function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null;
   }
 }
