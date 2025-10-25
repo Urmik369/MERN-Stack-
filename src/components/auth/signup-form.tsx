@@ -52,7 +52,6 @@ export default function SignupForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      // userCredential.user is the signed-in user
       await updateProfile(userCredential.user, { displayName: values.name });
       
       toast({
@@ -60,9 +59,6 @@ export default function SignupForm() {
         description: "You have successfully signed up.",
       });
 
-      // Manually reload user state to reflect display name update
-      await userCredential.user.reload();
-      
       router.push('/account');
     } catch (error: any) {
       toast({
