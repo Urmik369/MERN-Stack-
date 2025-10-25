@@ -34,6 +34,8 @@ const formSchema = z.object({
   }),
 });
 
+const ADMIN_EMAIL = "admin@stylespace.com";
+
 export default function SignupForm() {
   const app = useFirebaseApp();
   const auth = getAuth(app);
@@ -59,7 +61,11 @@ export default function SignupForm() {
         description: "You have successfully signed up.",
       });
 
-      router.push('/account');
+      if (userCredential.user.email === ADMIN_EMAIL) {
+        router.push('/admin');
+      } else {
+        router.push('/account');
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
