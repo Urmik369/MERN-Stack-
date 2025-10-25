@@ -33,28 +33,47 @@ function OrdersTableSkeleton() {
   );
 }
 
+function MissingIndexAlert() {
+    return (
+        <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Firestore Index Required</AlertTitle>
+            <AlertDescription>
+                <p>To display all orders, a specific index must be created in your Firestore database. Please go to your Firebase Console and create it manually with the following settings:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1 text-sm font-mono bg-muted p-4 rounded-md">
+                    <li><strong>Collection ID:</strong> orders</li>
+                    <li><strong>Fields to index:</strong>
+                        <ul className="list-disc pl-5">
+                            <li>orderDate | Descending</li>
+                        </ul>
+                    </li>
+                    <li><strong>Query scope:</strong> Collection group</li>
+                </ul>
+                <p className="mt-2">After the index is built (which may take a few minutes), this page will work correctly.</p>
+            </AlertDescription>
+        </Alert>
+    )
+}
+
+
 export default function OrdersPage() {
   const firestore = useFirestore();
-  const [firestoreErrorUrl, setFirestoreErrorUrl] = useState<string | null>(null);
+  const [isPermissionError, setIsPermissionError] = useState(false);
 
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // A simplified query to help Firestore generate the correct index creation link.
-    return query(
-        collectionGroup(firestore, 'orders'), 
-        orderBy('orderDate', 'desc')
-    );
+    return query(collectionGroup(firestore, 'orders'), orderBy('orderDate', 'desc'));
   }, [firestore]);
 
   const { data: orders, isLoading, error } = useCollection<Order>(ordersQuery);
 
   useEffect(() => {
-    if (error) {
-      const firebaseError = error as any;
-      const urlMatch = firebaseError?.message?.match(/https?:\/\/[^\s]+/);
-      if (urlMatch) {
-        setFirestoreErrorUrl(urlMatch[0]);
-      }
+    if (error && error.message.includes("permission-denied")) {
+        // A permission denied error can mean one of two things:
+        // 1. The security rules are incorrect.
+        // 2. The required Firestore index is missing. Firestore checks rules *before* checking for an index.
+        // If the rules are correct, the most likely cause is the missing index.
+        setIsPermissionError(true);
     }
   }, [error]);
 
@@ -79,22 +98,8 @@ export default function OrdersPage() {
           <CardContent>
             {isLoading ? (
               <OrdersTableSkeleton />
-            ) : error ? (
-                 <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Firestore Index Required</AlertTitle>
-                    <AlertDescription>
-                        A required Firestore index is missing, which is causing a permission error. To fix this, please click the link below to create the index in Firebase. The admin panel will work correctly once the index is built (which may take a few minutes).
-                        <br />
-                        {firestoreErrorUrl ? (
-                            <a href={firestoreErrorUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline mt-2 inline-block">
-                                Create Firestore Index
-                            </a>
-                        ) : (
-                           <p className="mt-2">Could not automatically generate the index creation link. Please check the browser's developer console for the full error message from Firebase, which contains the link, and create the index manually.</p>
-                        )}
-                    </AlertDescription>
-                </Alert>
+            ) : isPermissionError ? (
+                <MissingIndexAlert />
             ) : orders && orders.length > 0 ? (
             <Table>
               <TableHeader>
