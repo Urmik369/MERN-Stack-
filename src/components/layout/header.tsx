@@ -1,15 +1,16 @@
+
 'use client';
 
 import Link from 'next/link';
-import { ShoppingBag, User, Search, Menu } from 'lucide-react';
+import { ShoppingBag, User, Search, Menu, Shield } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 
 const navLinks = [
@@ -24,14 +25,25 @@ export default function Header() {
   const { user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearchTerm(params.get('q') || '');
+  }, [pathname]);
+
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const searchQuery = formData.get('search') as string;
-    router.push(`/?q=${searchQuery}`);
+    const params = new URLSearchParams(window.location.search);
+    params.set('q', searchQuery);
+    params.set('page', '1');
+    router.push(`/?${params.toString()}`);
   };
 
   return (
@@ -59,6 +71,13 @@ export default function Header() {
                             </Link>
                         </SheetClose>
                     ))}
+                    {user && (
+                      <SheetClose asChild>
+                        <Link href="/admin" className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                          Admin
+                        </Link>
+                      </SheetClose>
+                    )}
                     </nav>
                 </div>
               </SheetContent>
@@ -84,8 +103,22 @@ export default function Header() {
         <div className="flex items-center gap-2 sm:gap-4">
           <form onSubmit={handleSearch} className="relative hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search..." className="pl-10 w-40 lg:w-64" name="search" />
+            <Input 
+              placeholder="Search..." 
+              className="pl-10 w-40 lg:w-64" 
+              name="search" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </form>
+          {user && (
+            <Link href="/admin" passHref>
+              <Button variant="ghost" size="icon">
+                <Shield className="h-5 w-5" />
+                <span className="sr-only">Admin Panel</span>
+              </Button>
+            </Link>
+          )}
           <Link href={user ? '/account' : '/login'} passHref>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />
