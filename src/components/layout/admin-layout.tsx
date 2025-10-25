@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -15,10 +15,14 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Settings, Store } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useUser } from '@/firebase';
+import { Button } from '../ui/button';
+import { getAuth, signOut } from 'firebase/auth';
+import { useFirebaseApp } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,6 +35,27 @@ const menuItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const app = useFirebaseApp();
+  const auth = getAuth(app);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: error.message,
+      });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -38,10 +63,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SidebarHeader className='p-4'>
           <div className="flex items-center gap-2">
             <div className='group-data-[[data-collapsible=icon]]:hidden'>
-              <Logo />
+              <Logo href="/admin" />
             </div>
              <div className='hidden group-data-[[data-collapsible=icon]]:block'>
-              <Logo isIconOnly />
+              <Logo href="/admin" isIconOnly />
             </div>
           </div>
         </SidebarHeader>
@@ -63,18 +88,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className='p-4'>
-           <Link href="/" passHref>
-             <SidebarMenuButton tooltip={{ children: 'Log Out' }}>
-                <LogOut />
-                <span>Log Out</span>
-            </SidebarMenuButton>
-          </Link>
+           <SidebarMenuButton tooltip={{ children: 'Log Out' }} onClick={handleLogout}>
+              <LogOut />
+              <span>Log Out</span>
+          </SidebarMenuButton>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className='bg-background text-foreground'>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <SidebarTrigger className='sm:hidden'/>
-            <div className="flex-1"></div>
+            <div className="flex-1">
+              <Link href="/" passHref>
+                <Button variant="outline" size="sm">
+                  <Store className="mr-2 h-4 w-4" />
+                  View Store
+                </Button>
+              </Link>
+            </div>
             <Avatar>
                 <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin/40/40"} />
                 <AvatarFallback>{user?.displayName?.charAt(0) || 'A'}</AvatarFallback>
