@@ -1,5 +1,7 @@
-import { defineFlow } from 'genkit/flow';
-import { z } from 'zod';
+'use server';
+
+import {ai} from '@/ai/genkit';
+import {z} from 'genkit/zod';
 import { products } from '@/lib/data';
 
 const ProductSchema = z.object({
@@ -8,58 +10,53 @@ const ProductSchema = z.object({
 });
 
 const RecommendationRequestSchema = z.object({
-  cartItems: z.array(ProductSchema),
-  currentDate: z.string(),
+  cartItems: z.array(ProductSchema).describe("List of items currently in the shopping cart."),
+  currentDate: z.string().describe("The current date in ISO format (YYYY-MM-DD)."),
 });
 
 const RecommendationResponseSchema = z.array(
   z.object({
-    id: z.string().describe('The ID of the recommended product'),
-    name: z.string().describe('The name of the recommended product'),
-    reason: z.string().describe('A short reason why this item is recommended'),
+    id: z.string().describe('The ID of the recommended product from the available products list.'),
+    name: z.string().describe('The name of the recommended product.'),
+    reason: z.string().describe('A short reason why this item is recommended, referencing the items in the cart.'),
   })
-);
+).max(3);
 
-// This is a mock implementation of the style recommender flow.
-// In a real application, this would use an LLM with a detailed prompt
-// to generate recommendations based on the full product catalog and trends.
 
-export const styleRecommender = defineFlow(
+const allProductNames = products.map(p => `${p.name} (ID: ${p.id})`).join('\n');
+
+const prompt = ai.definePrompt({
+  name: 'styleRecommenderPrompt',
+  input: {schema: RecommendationRequestSchema},
+  output: {schema: RecommendationResponseSchema},
+  prompt: `You are a personal stylist for an e-commerce store. Your goal is to recommend products to users based on the items in their shopping cart.
+
+Today's date is {{{currentDate}}}.
+
+Here are the items in the user's cart:
+{{#each cartItems}}
+- {{{this.name}}} (Category: {{{this.category}}})
+{{/each}}
+
+Here is the list of all available products they can be recommended:
+${allProductNames}
+
+Based on the cart items and current fashion trends, provide up to 3 product recommendations from the available products list.
+For each recommendation, provide the product ID, name, and a short, compelling reason why it would be a great addition, referencing their current cart items.
+
+Do not recommend items that are already in the cart. Ensure the recommended product IDs are from the available products list.
+`,
+});
+
+
+export const styleRecommender = ai.defineFlow(
   {
     name: 'styleRecommender',
     inputSchema: RecommendationRequestSchema,
     outputSchema: RecommendationResponseSchema,
-    authPolicy: (auth, input) => {
-      // In a real app, you might check for user authentication here.
-      // For now, we allow all requests.
-    },
   },
-  async ({ cartItems, currentDate }) => {
-    console.log(`Generating recommendations for cart with ${cartItems.length} items on ${currentDate}`);
-    
-    if (cartItems.length === 0) {
-      return [];
-    }
-
-    const cartItemIds = cartItems.map(item => item.name.toLowerCase().replace(/\s+/g, '-').replace(/'/g, ''));
-
-    // Simple recommendation logic: find items from different categories than what's in the cart.
-    const cartCategories = new Set(cartItems.map(i => i.category));
-    let recommendedProducts = products.filter(p => !cartItemIds.includes(p.id) && !cartCategories.has(p.category));
-
-    // If no recommendations found, recommend items from any category.
-    if(recommendedProducts.length < 3) {
-      recommendedProducts = products.filter(p => !cartItemIds.includes(p.id));
-    }
-    
-    // Shuffle and take top 3
-    const shuffled = recommendedProducts.sort(() => 0.5 - Math.random());
-    const finalRecommendations = shuffled.slice(0, 3);
-
-    return finalRecommendations.map(p => ({
-      id: p.id,
-      name: p.name,
-      reason: `A great addition to complete your look.`
-    }));
+  async (input) => {
+    const {output} = await prompt(input);
+    return output || [];
   }
 );

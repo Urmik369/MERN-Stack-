@@ -1,6 +1,6 @@
 'use server';
 
-import { runFlow } from '@genkit-ai/next/server';
+import { runFlow } from 'genkit';
 import { styleRecommender } from '@/ai/flows/style-recommender';
 import { Product, CartItem } from '@/lib/types';
 import { products } from '@/lib/data';
