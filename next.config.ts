@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'tse1.mm.bing.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'levi.in',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
