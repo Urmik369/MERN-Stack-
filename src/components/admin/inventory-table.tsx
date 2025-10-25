@@ -39,10 +39,10 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { ProductForm } from './product-form';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import type { Product } from '@/lib/types';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 
@@ -74,7 +74,7 @@ export default function InventoryTable() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const productsCollection = useMemo(() => {
+  const productsCollection = useMemoFirebase(() => {
     if (!firestore) return null;
     return collection(firestore, 'products');
   }, [firestore]);
