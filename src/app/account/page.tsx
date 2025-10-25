@@ -1,3 +1,4 @@
+
 'use client';
 
 import ShopLayout from "@/components/layout/shop-layout";
@@ -9,16 +10,39 @@ import { User, ShoppingBag, Heart, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { getAuth, signOut } from "firebase/auth";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { useFirebaseApp } from "@/firebase";
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import type { Order } from "@/lib/types";
+import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
+const getStatusVariant = (status: Order['status']) => {
+  switch (status) {
+    case 'Shipped': return 'default';
+    case 'Pending': return 'secondary';
+    case 'Delivered': return 'outline';
+    default: return 'destructive';
+  }
+};
+
 
 export default function AccountPage() {
   const app = useFirebaseApp();
   const auth = getAuth(app);
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const ordersQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'users', user.uid, 'orders'), orderBy('orderDate', 'desc'), limit(5));
+  }, [firestore, user]);
+
+  const { data: orders, isLoading: ordersLoading } = useCollection<Order>(ordersQuery);
 
   const handleLogout = async () => {
     try {
@@ -37,7 +61,7 @@ export default function AccountPage() {
     }
   };
 
-  if (loading) {
+  if (userLoading) {
     return (
       <ShopLayout>
         <div className="text-center">Loading account details...</div>
@@ -101,12 +125,39 @@ export default function AccountPage() {
                 <CardDescription>Your most recent purchases.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  <p>You have no recent orders.</p>
-                  <Button variant="link" asChild className="text-accent-foreground hover:text-primary">
-                    <Link href="/">Start Shopping</Link>
-                  </Button>
-                </div>
+                {ordersLoading ? (
+                  <div className="text-center text-muted-foreground py-8">Loading orders...</div>
+                ) : orders && orders.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">#{order.id.substring(0, 7)}</TableCell>
+                          <TableCell>{format(order.orderDate.toDate(), 'PP')}</TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">₹{order.totalAmount.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    <p>You have no recent orders.</p>
+                    <Button variant="link" asChild className="text-accent-foreground hover:text-primary">
+                      <Link href="/">Start Shopping</Link>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

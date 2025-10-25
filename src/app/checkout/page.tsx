@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCart } from '@/hooks/use-cart';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import ShopLayout from '@/components/layout/shop-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: '',
+      name: user?.displayName || '',
       address: '',
       city: '',
       postalCode: '',
@@ -79,8 +79,9 @@ export default function CheckoutPage() {
         status: 'Pending',
         orderDate: serverTimestamp(),
       };
-
-      await addDoc(collection(firestore, 'orders'), orderData);
+      
+      const ordersCollectionRef = collection(firestore, 'users', user.uid, 'orders');
+      await addDoc(ordersCollectionRef, orderData);
       
       toast({
         title: 'Order Placed!',

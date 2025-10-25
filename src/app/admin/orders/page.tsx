@@ -1,3 +1,4 @@
+
 'use client';
 
 import AdminLayout from "@/components/layout/admin-layout";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collectionGroup, query, orderBy } from 'firebase/firestore';
 import type { Order } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
@@ -33,7 +34,8 @@ export default function OrdersPage() {
   const firestore = useFirestore();
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'orders'), orderBy('orderDate', 'desc'));
+    // Use collectionGroup to query across all 'orders' subcollections
+    return query(collectionGroup(firestore, 'orders'), orderBy('orderDate', 'desc'));
   }, [firestore]);
 
   const { data: orders, isLoading } = useCollection<Order>(ordersQuery);
