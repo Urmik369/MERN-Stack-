@@ -5,7 +5,6 @@ import { useCart } from '@/hooks/use-cart';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { X, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
@@ -62,7 +61,9 @@ export default function CartView() {
                 <span>₹{cartTotal.toFixed(2)}</span>
             </div>
             <p className="text-sm text-muted-foreground">Shipping and taxes calculated at checkout.</p>
-            <Button className="w-full" size="lg">Proceed to Checkout</Button>
+            <Button asChild className="w-full" size="lg">
+              <Link href="/checkout">Proceed to Checkout</Link>
+            </Button>
           </div>
         </div>
       )}
