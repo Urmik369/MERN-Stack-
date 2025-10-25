@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingBag, User, Search, Menu, Shield } from 'lucide-react';
+import { ShoppingBag, User, Search, Menu } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,8 +31,13 @@ export default function Header() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSearchTerm(params.get('q') || '');
+    // This effect ensures the search input in the filter component
+    // stays in sync with the URL's `q` parameter.
+    const newSearchQuery = new URLSearchParams(window.location.search).get('q') || '';
+    if (newSearchQuery !== searchTerm) {
+      setSearchTerm(newSearchQuery);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
 
@@ -71,13 +76,6 @@ export default function Header() {
                             </Link>
                         </SheetClose>
                     ))}
-                    {user && (
-                      <SheetClose asChild>
-                        <Link href="/admin" className="text-lg font-medium text-foreground hover:text-primary transition-colors">
-                          Admin
-                        </Link>
-                      </SheetClose>
-                    )}
                     </nav>
                 </div>
               </SheetContent>
@@ -111,14 +109,6 @@ export default function Header() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </form>
-          {user && (
-            <Link href="/admin" passHref>
-              <Button variant="ghost" size="icon">
-                <Shield className="h-5 w-5" />
-                <span className="sr-only">Admin Panel</span>
-              </Button>
-            </Link>
-          )}
           <Link href={user ? '/account' : '/login'} passHref>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />

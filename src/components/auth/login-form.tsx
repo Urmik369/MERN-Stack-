@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +32,8 @@ const formSchema = z.object({
   }),
 });
 
+const ADMIN_EMAIL = "admin@stylespace.com";
+
 export default function LoginForm() {
   const app = useFirebaseApp();
   const auth = getAuth(app);
@@ -47,17 +50,26 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
-      router.push('/account');
+
+      if (userCredential.user.email === ADMIN_EMAIL) {
+        router.push('/admin');
+      } else {
+        router.push('/account');
+      }
     } catch (error: any) {
+      let errorMessage = error.message;
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid email or password. Please try again.';
+      }
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message,
+        description: errorMessage,
       });
     }
   }
