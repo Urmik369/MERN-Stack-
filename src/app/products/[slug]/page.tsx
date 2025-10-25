@@ -1,3 +1,4 @@
+
 import { products } from '@/lib/data';
 import ShopLayout from '@/components/layout/shop-layout';
 import { notFound } from 'next/navigation';
