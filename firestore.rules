@@ -1,0 +1,198 @@
+/**
+ * @fileOverview Firestore Security Rules for StyleSpace.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles, shopping carts, orders, and style recommendations.
+ * Product data is publicly accessible.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profiles. Only the authenticated user can access their profile.
+ * - /products/{productId}: Stores product information. Accessible to all users.
+ * - /users/{userId}/shoppingCart: Stores the user's shopping cart data. Only the user can access their cart.
+ * - /users/{userId}/orders/{orderId}: Stores orders placed by the user. Only the user can access their orders.
+ * - /users/{userId}/styleRecommendations/{recommendationId}: Stores style recommendations for the user. Only the user can access their recommendations.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed.
+ * - Products are publicly readable.
+ * - All write operations on user-owned data are restricted to the owner.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Manages user profiles.  Only the authenticated user can access their own profile.
+     * @path /users/{userId}
+     * @allow (create) Authenticated user with ID 'user123' creates their profile document.
+     * @allow (get) Authenticated user with ID 'user123' reads their own profile document.
+     * @allow (update) Authenticated user with ID 'user123' updates their own profile document.
+     * @allow (delete) Authenticated user with ID 'user123' deletes their own profile document.
+     * @deny (create) Authenticated user with ID 'user456' attempts to create a profile for 'user123'.
+     * @deny (get) Authenticated user with ID 'user456' attempts to read the profile of 'user123'.
+     * @deny (update) Authenticated user with ID 'user456' attempts to update the profile of 'user123'.
+     * @deny (delete) Authenticated user with ID 'user456' attempts to delete the profile of 'user123'.
+     * @principle Enforces document ownership for all operations.  Validates the user ID on creation and ensures immutability.
+     */
+    match /users/{userId} {
+      // Helper function to check if the user is signed in.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the requested user ID matches the authenticated user ID.
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      // Helper function to check if the user is the existing owner of the document.
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      // Read permissions
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if false;
+
+      // Write permissions
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages product information.  Accessible to all users.
+     * @path /products/{productId}
+     * @allow (get) Any user can read product information.
+     * @allow (list) Any user can list product information.
+     * @deny (create) No user can create product documents through client.
+     * @deny (update) No user can update product documents through client.
+     * @deny (delete) No user can delete product documents through client.
+     * @principle Public read access, no write access granted through client.
+     */
+    match /products/{productId} {
+      // Read permissions
+      allow get, list: if true;
+
+      // Write permissions
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Manages user shopping cart data. Only the authenticated user can access their own shopping cart.
+     * @path /users/{userId}/shoppingCart
+     * @allow (create) Authenticated user with ID 'user123' creates their shopping cart document.
+     * @allow (get) Authenticated user with ID 'user123' reads their own shopping cart document.
+     * @allow (update) Authenticated user with ID 'user123' updates their own shopping cart document.
+     * @allow (delete) Authenticated user with ID 'user123' deletes their own shopping cart document.
+     * @deny (create) Authenticated user with ID 'user456' attempts to create a shopping cart for 'user123'.
+     * @deny (get) Authenticated user with ID 'user456' attempts to read the shopping cart of 'user123'.
+     * @deny (update) Authenticated user with ID 'user456' attempts to update the shopping cart of 'user123'.
+     * @deny (delete) Authenticated user with ID 'user456' attempts to delete the shopping cart of 'user123'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/shoppingCart {
+       // Helper function to check if the user is signed in.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the requested user ID matches the authenticated user ID.
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      // Helper function to check if the user is the existing owner of the document.
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      // Read permissions
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+
+      // Write permissions
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages orders placed by the user. Only the authenticated user can access their own orders.
+     * @path /users/{userId}/orders/{orderId}
+     * @allow (create) Authenticated user with ID 'user123' creates an order document for themselves.
+     * @allow (get) Authenticated user with ID 'user123' reads their own order document.
+     * @allow (update) Authenticated user with ID 'user123' updates their own order document.
+     * @allow (delete) Authenticated user with ID 'user123' deletes their own order document.
+     * @deny (create) Authenticated user with ID 'user456' attempts to create an order for 'user123'.
+     * @deny (get) Authenticated user with ID 'user456' attempts to read an order of 'user123'.
+     * @deny (update) Authenticated user with ID 'user456' attempts to update an order of 'user123'.
+     * @deny (delete) Authenticated user with ID 'user456' attempts to delete an order of 'user123'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/orders/{orderId} {
+      // Helper function to check if the user is signed in.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the requested user ID matches the authenticated user ID.
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+       // Helper function to check if the user is the existing owner of the document.
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      // Read permissions
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+
+      // Write permissions
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages style recommendations for the user. Only the authenticated user can access their own recommendations.
+     * @path /users/{userId}/styleRecommendations/{recommendationId}
+     * @allow (create) Authenticated user with ID 'user123' creates a style recommendation for themselves.
+     * @allow (get) Authenticated user with ID 'user123' reads their own style recommendation.
+     * @allow (update) Authenticated user with ID 'user123' updates their own style recommendation.
+     * @allow (delete) Authenticated user with ID 'user123' deletes their own style recommendation.
+     * @deny (create) Authenticated user with ID 'user456' attempts to create a style recommendation for 'user123'.
+     * @deny (get) Authenticated user with ID 'user456' attempts to read a style recommendation of 'user123'.
+     * @deny (update) Authenticated user with ID 'user456' attempts to update a style recommendation of 'user123'.
+     * @deny (delete) Authenticated user with ID 'user456' attempts to delete a style recommendation of 'user123'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/styleRecommendations/{recommendationId} {
+      // Helper function to check if the user is signed in.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the requested user ID matches the authenticated user ID.
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+       // Helper function to check if the user is the existing owner of the document.
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      // Read permissions
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+
+      // Write permissions
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
