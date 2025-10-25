@@ -6,10 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collectionGroup, query, orderBy } from 'firebase/firestore';
+import { collectionGroup, query, orderBy, where } from 'firebase/firestore';
 import type { Order } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 function OrdersTableSkeleton() {
   return (
@@ -35,19 +37,26 @@ export default function OrdersPage() {
   const ordersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     // Use collectionGroup to query across all 'orders' subcollections
-    return query(collectionGroup(firestore, 'orders'), orderBy('orderDate', 'desc'));
+    // This more specific query can help Firestore generate the correct index.
+    return query(
+        collectionGroup(firestore, 'orders'), 
+        orderBy('orderDate', 'desc')
+    );
   }, [firestore]);
 
-  const { data: orders, isLoading } = useCollection<Order>(ordersQuery);
+  const { data: orders, isLoading, error } = useCollection<Order>(ordersQuery);
 
   const getStatusVariant = (status: Order['status']) => {
     switch (status) {
       case 'Shipped': return 'default';
       case 'Pending': return 'secondary';
       case 'Delivered': return 'outline';
-      default: 'destructive';
+      default: return 'destructive';
     }
   };
+  
+  const firebaseError = error as any;
+  const firestoreErrorUrl = firebaseError?.message?.match(/https?:\/\/[^\s]+/);
 
   return (
     <AdminLayout>
@@ -60,12 +69,29 @@ export default function OrdersPage() {
           <CardContent>
             {isLoading ? (
               <OrdersTableSkeleton />
+            ) : error ? (
+                 <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Firestore Index Required</AlertTitle>
+                    <AlertDescription>
+                        A required Firestore index is missing. To create it, please click the following link, review the index details, and click "Create". The admin panel will work correctly once the index is built (which may take a few minutes).
+                        <br />
+                        {firestoreErrorUrl ? (
+                            <a href={firestoreErrorUrl[0]} target="_blank" rel="noopener noreferrer" className="font-bold underline mt-2 inline-block">
+                                Create Firestore Index
+                            </a>
+                        ) : (
+                            <p className="mt-2">Could not automatically generate the index creation link. Please check the browser's developer console for the full error message from Firebase, which contains the link.</p>
+                        )}
+                    </AlertDescription>
+                </Alert>
             ) : orders && orders.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Customer</TableHead>
+
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
@@ -94,8 +120,7 @@ export default function OrdersPage() {
             </Table>
             ) : (
                 <div className="text-center text-muted-foreground py-16">
-                    <p>No orders have been placed yet, or the required Firestore index is still being built.</p>
-                    <p className="text-sm">It can take a few minutes for a new index to become active.</p>
+                    <p>No orders have been placed yet.</p>
                 </div>
             )}
           </CardContent>
