@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -15,7 +16,7 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Settings, Store } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, LogOut, Settings, Store } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useUser } from '@/firebase';
@@ -26,7 +27,6 @@ import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/customers', label: 'Customers', icon: Users },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
@@ -115,3 +115,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </SidebarProvider>
   );
 }
+
+    

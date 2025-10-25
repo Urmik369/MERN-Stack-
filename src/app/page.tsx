@@ -3,8 +3,7 @@
 
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { products as localProducts } from '@/lib/data';
 import type { Product } from '@/lib/types';
 import ShopLayout from '@/components/layout/shop-layout';
 import ProductGrid from '@/components/product/product-grid';
@@ -33,14 +32,9 @@ export default function Home() {
   const searchTerm = searchParams.get('q')?.toLowerCase() ?? '';
   let category = searchParams.get('category') ?? 'all';
 
-  const firestore = useFirestore();
-
-  const productsCollection = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'products');
-  }, [firestore]);
-
-  const { data: products, isLoading } = useCollection<Product>(productsCollection);
+  // We will now primarily use the local product data.
+  const products = localProducts;
+  const isLoading = false; // Data is now static, so no loading state.
 
   const categories = useMemo(() => {
     if (!products) return ['all', 'Men', 'Women'];
@@ -110,3 +104,5 @@ export default function Home() {
     </ShopLayout>
   );
 }
+
+    
