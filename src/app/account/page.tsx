@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useEffect } from "react";
 import ShopLayout from "@/components/layout/shop-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,8 @@ import { User, ShoppingBag, Heart, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { getAuth, signOut } from "firebase/auth";
-import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase, useFirebaseApp } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { useFirebaseApp } from "@/firebase";
 import { collection, query, orderBy, limit } from 'firebase/firestore';
 import type { Order } from "@/lib/types";
 import { format } from 'date-fns';
@@ -44,6 +44,12 @@ export default function AccountPage() {
 
   const { data: orders, isLoading: ordersLoading } = useCollection<Order>(ordersQuery);
 
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, userLoading, router]);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -61,21 +67,12 @@ export default function AccountPage() {
     }
   };
 
-  if (userLoading) {
+  if (userLoading || !user) {
     return (
       <ShopLayout>
-        <div className="text-center">Loading account details...</div>
+        <div className="text-center py-20">Loading account details...</div>
       </ShopLayout>
     );
-  }
-
-  if (!user) {
-    // This should be handled by middleware in a real app
-    // For now, redirect client-side
-    if (typeof window !== 'undefined') {
-      router.push('/login');
-    }
-    return null;
   }
 
   return (
