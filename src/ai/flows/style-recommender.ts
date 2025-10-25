@@ -1,7 +1,7 @@
 'use server';
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit/zod';
+import {z} from 'zod';
 import { products } from '@/lib/data';
 
 const ProductSchema = z.object({
