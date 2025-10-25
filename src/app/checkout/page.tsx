@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
+import { useEffect } from 'react';
 
 const addressSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -44,18 +46,18 @@ export default function CheckoutPage() {
     },
   });
 
-  if (userLoading) {
-    return <ShopLayout><div>Loading...</div></ShopLayout>;
-  }
+  useEffect(() => {
+    if (!userLoading) {
+      if (!user) {
+        router.push('/login?redirect=/checkout');
+      } else if (cartItems.length === 0) {
+        router.push('/');
+      }
+    }
+  }, [user, userLoading, cartItems, router]);
 
-  if (!user) {
-    router.push('/login?redirect=/checkout');
-    return null;
-  }
-  
-  if (cartItems.length === 0 && !userLoading) {
-      router.push('/');
-      return null;
+  if (userLoading || !user || cartItems.length === 0) {
+    return <ShopLayout><div>Loading...</div></ShopLayout>;
   }
 
   const onSubmit = async (data: AddressFormValues) => {
