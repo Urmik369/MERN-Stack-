@@ -100,16 +100,18 @@ export default function InventoryTable() {
   const handleDeleteProduct = async () => {
     if (!productToDelete || !firestore) return;
     try {
-      await deleteDoc(doc(firestore, 'products', productToDelete.id));
+      const productRef = doc(firestore, 'products', productToDelete.id);
+      await deleteDoc(productRef);
       toast({
         title: "Product Deleted",
         description: `${productToDelete.name} has been successfully deleted.`,
       });
     } catch (error: any) {
+      console.error("Error deleting product:", error); // Log the actual error to the console
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Failed to delete product: ${error.message}`,
+        description: `Failed to delete product. ${error.code === 'permission-denied' ? 'Missing or insufficient permissions.' : error.message}`,
       });
     } finally {
       setAlertOpen(false);
