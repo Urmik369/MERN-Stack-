@@ -4,10 +4,22 @@ import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
-    if (!img) throw new Error(`Image with id ${id} not found`);
+    if (!img) {
+      console.warn(`Image with id ${id} not found, using placeholder.`);
+      return {
+        src: 'https://picsum.photos/seed/placeholder/600/800',
+        alt: 'Placeholder image',
+        width: 600,
+        height: 800,
+        hint: 'placeholder'
+      }
+    };
     const urlParts = img.imageUrl.split('/');
-    const width = parseInt(urlParts[urlParts.length - 2]);
-    const height = parseInt(urlParts[urlParts.length - 1]);
+    const widthString = urlParts[urlParts.length - 2];
+    const heightString = urlParts[urlParts.length - 1];
+
+    const width = !isNaN(parseInt(widthString)) ? parseInt(widthString) : 600;
+    const height = !isNaN(parseInt(heightString)) ? parseInt(heightString) : 800;
     return {
         src: img.imageUrl,
         alt: img.description,
@@ -16,6 +28,9 @@ const getImage = (id: string) => {
         hint: img.imageHint
     };
 }
+
+// This file is now a fallback for when Firestore is not available or for initial data seeding.
+// The main application should fetch data from Firestore.
 
 export const products: Product[] = [
     {
