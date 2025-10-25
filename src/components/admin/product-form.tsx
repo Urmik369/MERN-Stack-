@@ -42,7 +42,7 @@ const formSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
   category: z.enum(productCategories),
-  stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }),
+  stock: z.coerce.number().int().min(0, { message: 'Stock cannot be negative.' }).optional(),
   image: z.object({
     src: z.string().url({ message: 'Please enter a valid image URL.' }),
     alt: z.string().min(1, { message: 'Image alt text is required.' }),
@@ -113,7 +113,7 @@ export function ProductForm({ isOpen, setIsOpen, product }: ProductFormProps) {
 
     try {
       const slug = generateSlug(values.name);
-      const dataToSave = { ...values, slug };
+      const dataToSave = { ...values, slug, stock: values.stock ?? 0 };
 
       if (product) {
         // Update existing product
@@ -215,19 +215,21 @@ export function ProductForm({ isOpen, setIsOpen, product }: ProductFormProps) {
                         </FormItem>
                     )}
                 />
-                <FormField
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Stock</FormLabel>
-                    <FormControl>
-                        <Input type="number" placeholder="e.g., 150" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
+                {product && (
+                  <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Stock</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="e.g., 150" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                  />
                 )}
-                />
             </div>
             
              <FormField
