@@ -2,6 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { Product } from '@/lib/types';
@@ -25,15 +26,12 @@ function ProductGridSkeleton() {
   );
 }
 
-export default function Home({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const page = searchParams['page'] ?? '1';
-  const perPage = searchParams['per_page'] ?? '9';
-  const searchTerm = (searchParams['q'] as string)?.toLowerCase() ?? '';
-  let category = (searchParams['category'] as string) ?? 'all';
+export default function Home() {
+  const searchParams = useSearchParams();
+  const page = searchParams.get('page') ?? '1';
+  const perPage = searchParams.get('per_page') ?? '9';
+  const searchTerm = searchParams.get('q')?.toLowerCase() ?? '';
+  let category = searchParams.get('category') ?? 'all';
 
   const firestore = useFirestore();
 
