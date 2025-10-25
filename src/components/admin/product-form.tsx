@@ -35,6 +35,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const productCategories = ['T-Shirts', 'Jeans', 'Dresses', 'Jackets', 'Hoodies', 'Footwear', 'Shirts', 'Shorts', 'Trousers', 'Tops', 'Skirts', 'Accessories'] as const;
 
@@ -112,33 +114,47 @@ export function ProductForm({ isOpen, setIsOpen, product }: ProductFormProps) {
       return;
     }
 
-    try {
-      const slug = generateSlug(values.name);
-      const dataToSave = { ...values, slug, stock: values.stock ?? 0 };
+    const slug = generateSlug(values.name);
+    const dataToSave = { ...values, slug, stock: values.stock ?? 0 };
 
-      if (product) {
-        // Update existing product
-        const productRef = doc(firestore, 'products', product.id);
-        await updateDoc(productRef, dataToSave);
-        toast({
-          title: 'Product Updated',
-          description: `${values.name} has been successfully updated.`,
+    if (product) {
+      // Update existing product
+      const productRef = doc(firestore, 'products', product.id);
+      updateDoc(productRef, dataToSave)
+        .then(() => {
+          toast({
+            title: 'Product Updated',
+            description: `${values.name} has been successfully updated.`,
+          });
+          setIsOpen(false);
+        })
+        .catch((serverError) => {
+          const permissionError = new FirestorePermissionError({
+            path: productRef.path,
+            operation: 'update',
+            requestResourceData: dataToSave,
+          });
+          errorEmitter.emit('permission-error', permissionError);
         });
-      } else {
-        // Add new product
-        await addDoc(collection(firestore, 'products'), dataToSave);
-        toast({
-          title: 'Product Added',
-          description: `${values.name} has been successfully added.`,
+    } else {
+      // Add new product
+      const productsCollectionRef = collection(firestore, 'products');
+      addDoc(productsCollectionRef, dataToSave)
+        .then(() => {
+          toast({
+            title: 'Product Added',
+            description: `${values.name} has been successfully added.`,
+          });
+          setIsOpen(false);
+        })
+        .catch((serverError) => {
+          const permissionError = new FirestorePermissionError({
+            path: productsCollectionRef.path,
+            operation: 'create',
+            requestResourceData: dataToSave,
+          });
+          errorEmitter.emit('permission-error', permissionError);
         });
-      }
-      setIsOpen(false);
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: `Could not save product: ${error.message}`,
-      });
     }
   };
 
