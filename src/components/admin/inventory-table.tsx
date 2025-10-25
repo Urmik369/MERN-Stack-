@@ -1,3 +1,4 @@
+
 import { products } from "@/lib/data";
 import Image from "next/image";
 import { MoreHorizontal } from "lucide-react";
@@ -71,7 +72,7 @@ export default function InventoryTable() {
                   <Badge variant="outline">{product.category}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {product.stock}
