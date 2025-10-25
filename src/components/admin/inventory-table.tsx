@@ -1,7 +1,7 @@
 
 import { products } from "@/lib/data";
 import Image from "next/image";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,10 +31,18 @@ export default function InventoryTable() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>All Products</CardTitle>
-        <CardDescription>
-          A list of all products in your store.
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Products</CardTitle>
+            <CardDescription>
+              A list of all products in your store.
+            </CardDescription>
+          </div>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -59,7 +67,7 @@ export default function InventoryTable() {
               <TableRow key={product.id}>
                 <TableCell className="hidden sm:table-cell">
                   <Image
-                    alt={product.name}
+                    alt={product.image.alt}
                     className="aspect-square rounded-md object-cover"
                     height="64"
                     src={product.image.src}

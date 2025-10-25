@@ -18,7 +18,7 @@ import {
 import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Settings } from 'lucide-react';
 import Logo from '@/components/shared/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
+import { useUser } from '@/firebase';
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -30,6 +30,7 @@ const menuItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useUser();
 
   return (
     <SidebarProvider>
@@ -48,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href="#" passHref>
+                <Link href={item.href} passHref>
                   <SidebarMenuButton
                     isActive={pathname === item.href}
                     tooltip={{ children: item.label }}
@@ -75,8 +76,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <SidebarTrigger className='sm:hidden'/>
             <div className="flex-1"></div>
             <Avatar>
-                <AvatarImage src="https://picsum.photos/seed/admin/40/40" />
-                <AvatarFallback>A</AvatarFallback>
+                <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin/40/40"} />
+                <AvatarFallback>{user?.displayName?.charAt(0) || 'A'}</AvatarFallback>
             </Avatar>
         </header>
         {children}
