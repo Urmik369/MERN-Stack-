@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -22,6 +23,15 @@ export default function ProductFilters({ categories }: ProductFiltersProps) {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
+    // This effect ensures the search input in the filter component
+    // stays in sync with the URL's `q` parameter.
+    const newSearchQuery = searchParams.get('q') || '';
+    if (newSearchQuery !== searchTerm) {
+      setSearchTerm(newSearchQuery);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     const params = new URLSearchParams(searchParams);
     if (debouncedSearchTerm) {
       params.set('q', debouncedSearchTerm);
@@ -30,7 +40,7 @@ export default function ProductFilters({ categories }: ProductFiltersProps) {
     }
     params.set('page', '1'); // Reset to first page on search
     router.replace(`${pathname}?${params.toString()}`);
-  }, [debouncedSearchTerm, router, pathname, searchParams]);
+  }, [debouncedSearchTerm, router, pathname]);
 
   const handleCategoryChange = (category: string) => {
     const params = new URLSearchParams(searchParams);

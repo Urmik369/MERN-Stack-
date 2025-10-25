@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name: string;
@@ -10,7 +11,7 @@ export type Product = {
     height: number;
     hint: string;
   };
-  category: 'T-Shirts' | 'Jeans' | 'Dresses' | 'Jackets' | 'Hoodies' | 'Footwear' | 'Shirts' | 'Shorts' | 'Trousers' | 'Tops';
+  category: 'T-Shirts' | 'Jeans' | 'Dresses' | 'Jackets' | 'Hoodies' | 'Footwear' | 'Shirts' | 'Shorts' | 'Trousers' | 'Tops' | 'Skirts' | 'Accessories';
   stock: number;
   slug: string;
 };

@@ -1,3 +1,4 @@
+
 import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
 import ShopLayout from '@/components/layout/shop-layout';
@@ -18,10 +19,10 @@ export default function Home({
   // Handle Men/Women categories
   const getCategoryProducts = (cat: string) => {
     if (cat === 'Men') {
-      return products.filter(p => ['T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear'].includes(p.category));
+      return products.filter(p => ['T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear', 'Shirts', 'Shorts', 'Accessories'].includes(p.category));
     }
     if (cat === 'Women') {
-      return products.filter(p => ['Dresses', 'T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear'].includes(p.category));
+      return products.filter(p => ['Dresses', 'T-Shirts', 'Jeans', 'Jackets', 'Hoodies', 'Footwear', 'Tops', 'Trousers', 'Skirts', 'Accessories'].includes(p.category));
     }
     if (cat === 'all' || !cat) {
       return products;

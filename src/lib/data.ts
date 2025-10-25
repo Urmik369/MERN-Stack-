@@ -1,3 +1,4 @@
+
 import type { Product } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -176,5 +177,45 @@ export const products: Product[] = [
         category: 'Tops',
         stock: 95,
         slug: 'silk-camisole-top',
+    },
+    {
+        id: 'mens-wool-cardigan',
+        name: 'Men\'s Wool Cardigan',
+        description: 'A soft and warm wool cardigan, perfect for layering in cooler weather.',
+        price: 3299.00,
+        image: getImage('mens-cardigan'),
+        category: 'Hoodies', 
+        stock: 65,
+        slug: 'mens-wool-cardigan',
+    },
+    {
+        id: 'womens-pleated-skirt',
+        name: 'Women\'s Pleated Skirt',
+        description: 'A stylish and flowy pleated midi skirt, suitable for any occasion.',
+        price: 2199.00,
+        image: getImage('pleated-skirt'),
+        category: 'Skirts',
+        stock: 80,
+        slug: 'womens-pleated-skirt',
+    },
+    {
+        id: 'classic-leather-belt',
+        name: 'Classic Leather Belt',
+        description: 'A high-quality leather belt that will last for years to come.',
+        price: 999.00,
+        image: getImage('leather-belt'),
+        category: 'Accessories',
+        stock: 150,
+        slug: 'classic-leather-belt',
+    },
+    {
+        id: 'mens-polo-shirt',
+        name: 'Men\'s Polo Shirt',
+        description: 'A classic polo shirt for a smart-casual look. Made from breathable pique cotton.',
+        price: 1399.00,
+        image: getImage('polo-shirt'),
+        category: 'Shirts',
+        stock: 100,
+        slug: 'mens-polo-shirt',
     }
 ];
