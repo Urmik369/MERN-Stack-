@@ -46,6 +46,8 @@ import type { Product } from '@/lib/types';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 function InventoryTableSkeleton() {
   return (
@@ -97,26 +99,27 @@ export default function InventoryTable() {
     setAlertOpen(true);
   };
 
-  const handleDeleteProduct = async () => {
+  const handleDeleteProduct = () => {
     if (!productToDelete || !firestore) return;
-    try {
-      const productRef = doc(firestore, 'products', productToDelete.id);
-      await deleteDoc(productRef);
-      toast({
-        title: "Product Deleted",
-        description: `${productToDelete.name} has been successfully deleted.`,
+    const productRef = doc(firestore, 'products', productToDelete.id);
+
+    deleteDoc(productRef)
+      .then(() => {
+        toast({
+          title: "Product Deleted",
+          description: `${productToDelete.name} has been successfully deleted.`,
+        });
+      })
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: productRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-    } catch (error: any) {
-      console.error("Error deleting product:", error); // Log the actual error to the console
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to delete product. ${error.code === 'permission-denied' ? 'Missing or insufficient permissions.' : error.message}`,
-      });
-    } finally {
-      setAlertOpen(false);
-      setProductToDelete(null);
-    }
+
+    setAlertOpen(false);
+    setProductToDelete(null);
   };
 
 
