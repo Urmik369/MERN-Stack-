@@ -179,7 +179,7 @@ export default function InventoryTable() {
                       <Badge variant="outline">{product.category}</Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      ₹{product.price.toFixed(2)}
+                      Rs {product.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {product.stock}

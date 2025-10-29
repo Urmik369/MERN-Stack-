@@ -185,7 +185,7 @@ export function ProductForm({ isOpen, setIsOpen, product }: ProductFormProps) {
                 name="price"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Price (₹)</FormLabel>
+                    <FormLabel>Price (Rs)</FormLabel>
                     <FormControl>
                         <Input type="number" placeholder="e.g., 799" {...field} />
                     </FormControl>

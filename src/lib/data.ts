@@ -234,5 +234,3 @@ export const products: Product[] = [
         slug: 'mens-polo-shirt',
     }
 ];
-
-    
