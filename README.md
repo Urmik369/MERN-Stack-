@@ -84,6 +84,6 @@ The application will be available at `http://localhost:9002`.
 To access the admin features, you need to log in with the designated admin account:
 
 -   **Email:** `admin@stylespace.com`
--   **Password:** The password you set when first signing up with this email.
+-   **Password:** 'password123'.
 
 After logging in with these credentials, you will be automatically redirected to the admin dashboard.
