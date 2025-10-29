@@ -30,8 +30,8 @@ export default function CustomersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {customers.map((customer) => (
-                  <TableRow key={customer.email}>
+                {customers.map((customer, index) => (
+                  <TableRow key={`${customer.email}-${index}`}>
                     <TableCell className="font-medium flex items-center gap-3">
                       <Avatar>
                         <AvatarImage src={customer.image} />
