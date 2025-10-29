@@ -73,7 +73,7 @@ export default function AiRecommendations() {
                                 />
                                 <div className="flex-grow">
                                     <h4 className="font-semibold">{product.name}</h4>
-                                    <p className="text-sm text-muted-foreground">₹{product.price.toFixed(2)}</p>
+                                    <p className="text-sm text-muted-foreground">Rs {product.price.toFixed(2)}</p>
                                 </div>
                                 <Button size="sm" variant="outline" onClick={() => addToCart(product)}>
                                     Add

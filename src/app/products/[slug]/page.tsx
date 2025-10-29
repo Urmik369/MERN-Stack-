@@ -60,7 +60,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
             <span className="text-sm text-muted-foreground">(123 reviews)</span>
           </div>
-          <p className="text-3xl font-bold">₹{product.price.toFixed(2)}</p>
+          <p className="text-3xl font-bold">Rs {product.price.toFixed(2)}</p>
           <p className="text-muted-foreground">{product.description}</p>
           
           <div className="space-y-4">
@@ -72,5 +72,3 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     </ShopLayout>
   );
 }
-
-    

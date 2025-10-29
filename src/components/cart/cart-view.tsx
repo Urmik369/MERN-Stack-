@@ -39,7 +39,7 @@ export default function CartView() {
               <div className="flex-grow space-y-1">
                 <h3 className="font-semibold">{product.name}</h3>
                 <p className="text-sm text-muted-foreground">{product.category}</p>
-                <p className="text-sm font-medium">₹{product.price.toFixed(2)}</p>
+                <p className="text-sm font-medium">Rs {product.price.toFixed(2)}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Input
@@ -58,7 +58,7 @@ export default function CartView() {
            <div className="p-4 space-y-4">
             <div className="flex justify-between text-lg font-semibold">
                 <span>Subtotal</span>
-                <span>₹{cartTotal.toFixed(2)}</span>
+                <span>Rs {cartTotal.toFixed(2)}</span>
             </div>
             <p className="text-sm text-muted-foreground">Shipping and taxes calculated at checkout.</p>
             <Button asChild className="w-full" size="lg">

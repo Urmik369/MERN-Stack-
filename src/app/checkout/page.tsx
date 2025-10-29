@@ -129,7 +129,7 @@ export default function CheckoutPage() {
                     <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? 'Placing Order...' : `Pay ₹${cartTotal.toFixed(2)}`}
+                    {form.formState.isSubmitting ? 'Placing Order...' : `Pay Rs ${cartTotal.toFixed(2)}`}
                   </Button>
                 </form>
               </Form>
@@ -152,13 +152,13 @@ export default function CheckoutPage() {
                                         <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                     </div>
                                 </div>
-                                <p className="font-medium">₹{(item.product.price * item.quantity).toFixed(2)}</p>
+                                <p className="font-medium">Rs {(item.product.price * item.quantity).toFixed(2)}</p>
                             </div>
                         ))}
                         <Separator />
                         <div className="flex justify-between font-semibold text-lg">
                             <p>Total</p>
-                            <p>₹{cartTotal.toFixed(2)}</p>
+                            <p>Rs {cartTotal.toFixed(2)}</p>
                         </div>
                     </div>
                 </CardContent>

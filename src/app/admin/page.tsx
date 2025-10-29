@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₹452,318.89</div>
+              <div className="text-2xl font-bold">Rs 452,318.89</div>
               <p className="text-xs text-muted-foreground">
                 +20.1% from last month
               </p>
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `₹${Number(value) / 1000}K`}
+                    tickFormatter={(value) => `Rs ${Number(value) / 1000}K`}
                     />
                     <Bar
                     dataKey="total"
